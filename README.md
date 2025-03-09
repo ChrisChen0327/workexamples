@@ -41,6 +41,3 @@ This repository contains the analytical project evaluating Illinois's Evidence-B
 - **Rui (Chris) Chen**
 - **Xinyue Zhou**  
 *Harris School of Public Policy, University of Chicago*
-
-
-# Project 2: HTML Web Mapping on Out-of-school activities at Chicago, based on ArcGIS Javascript
