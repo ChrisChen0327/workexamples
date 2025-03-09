@@ -1,3 +1,45 @@
+# Project 1: HTML+ArcGIS: Mapping Out-of-School Programs and Violent Crime in Chicago
+
+## Overview
+This repository contains an interactive GIS mapping project analyzing the distribution of Out-of-School Time (OST) programs and violent crime incidents in Chicago's South and West communities, developed by Chris Chen at the Harris School of Public Policy, University of Chicago.
+
+## Project Goals
+- Visualize the distribution and availability of OST programs from 2020 to 2024.
+- Explore potential spatial correlations between OST program density and community violence.
+- Provide policymakers and stakeholders with actionable insights to support resource allocation and policy advocacy.
+
+## Data Sources
+- **OST Programs**: Sourced from [My CHI. My Future](https://explore.mychimyfuture.org/interactive-map), including over 170,000 programs.
+- **Violent Crime Data**: Collected from the City of Chicago's public datasets.
+
+## Project Structure
+- **Data Cleaning and Preparation**: Performed in R, removing duplicates and filtering data to include 22 specific Chicago communities.
+- **GIS Mapping**: Developed using ArcGIS for enhanced data visualization and user interaction.
+
+## Features
+- **Interactive Time Slider**: Adjusts map data over three-month intervals, illustrating temporal changes.
+- **Violence Layer**: Optional map layer displaying violent crime incidents to allow users to investigate potential associations with OST program availability.
+- **Interactive Elements**:
+  - Program-specific popups displaying detailed information.
+  - Search functionality to quickly locate programs by name, type, or location.
+  - Community-level filters for focused analysis.
+
+## Data Sources and Tools
+- **My CHI, My Future Database**
+- **City of Chicago Open Data Portal**
+- **R** for data preprocessing
+- **ArcGIS** for professional-grade mapping and visualization
+
+## Design Choices and Rationale
+- **Time Slider**: Facilitates examination of temporal changes and trends in OST program availability.
+- **Violence Layer**: Optional toggle to juxtapose OST programs with violent crime data, enabling exploratory analyses of spatial relationships.
+- **Interactive Popups and Filters**: Enhances user engagement and accessibility to detailed program data.
+
+## Author
+- **Chris Chen**, Harris School of Public Policy, University of Chicago
+
+
+
 # Project 1: GIS + Causal Inference in Education Policy at Chicago
 ## Overview
 This repository contains the analytical project evaluating Illinois's Evidence-Based Funding (EBF) policy implemented in 2017, focusing on its impact on student academic performance and school district financial health. Conducted by Rui (Chris) Chen and Xinyue Zhou from the Harris School of Public Policy at the University of Chicago.
@@ -32,10 +74,6 @@ This repository contains the analytical project evaluating Illinois's Evidence-B
 - Moderate positive effect on district financial health scores post-policy.
 - Financial health partially mediates the policy's impact on student performance, though the mediation effect is relatively small.
 - Spatial analysis revealed mixed patterns, with some regions showing clearer relationships between increased funding and performance improvements.
-
-## Limitations and Future Work
-- Limited by short timeframe and lack of granular school-level spending data.
-- Future analyses should focus on longer-term data and include granular financial details to better identify heterogeneous impacts across districts and schools.
 
 ## Authors
 - **Rui (Chris) Chen**
