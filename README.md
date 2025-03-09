@@ -40,7 +40,8 @@ This repository contains an interactive GIS mapping project analyzing the distri
 
 
 
-# Project 1: GIS + Causal Inference in Education Policy at Chicago
+
+# Project 2: GIS + Causal Inference in Education Policy at Chicago
 ## Overview
 This repository contains the analytical project evaluating Illinois's Evidence-Based Funding (EBF) policy implemented in 2017, focusing on its impact on student academic performance and school district financial health. Conducted by Rui (Chris) Chen and Xinyue Zhou from the Harris School of Public Policy at the University of Chicago.
 
