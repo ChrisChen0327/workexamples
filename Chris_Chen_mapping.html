@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>Chicago OST Programs and Community Violence Map</title>
+  <link rel="stylesheet" href="https://js.arcgis.com/4.18/esri/themes/light/main.css">
+  <script src="https://js.arcgis.com/4.18/"></script>
+
+  <style>
+    html, body, #viewDiv {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    }
+    #timeSlider {
+      position: absolute;
+      left: 10px;
+      bottom: 10px;
+      width: 300px; /* Adjust the width as needed */
+      z-index: 100;
+    }
+    #searchDiv {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 99;
+      background: white;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    #layerControl {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 99;
+      background: white;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    #clusterFilter {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: white;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      z-index: 100;
+    }
+  </style>
+
+  <script>
+    require([
+      "esri/Map",
+      "esri/views/MapView",
+      "esri/layers/FeatureLayer",
+      "esri/renderers/UniqueValueRenderer",
+      "esri/symbols/SimpleMarkerSymbol",
+      "esri/widgets/TimeSlider",
+      "esri/widgets/Legend",
+      "esri/widgets/Search"
+    ], function (Map, MapView, FeatureLayer, UniqueValueRenderer, SimpleMarkerSymbol, TimeSlider, Legend, Search) {
+
+      const popupTemplate = {
+        title: "{Program_Name}",
+        content: [{
+          type: "fields",
+          fieldInfos: [
+            { fieldName: "Category_Name", label: "Category" },
+            { fieldName: "Org_Name", label: "Organization" },
+            { fieldName: "Min_Age", label: "Minimum Age" },
+            { fieldName: "City", label: "City" },
+            { fieldName: "Address", label: "Address" },
+            { fieldName: "Tag", label: "Tag" },
+            { fieldName: "eventTime", label: "Start Date", format: { dateFormat: "short-date" } },
+            { fieldName: "End_Date", label: "End Date", format: { dateFormat: "short-date" } },
+            { fieldName: "Capacity", label: "Capacity" },
+            { fieldName: "Program_URL", label: "More Info", format: { href: "{Program_URL}" } }
+          ]
+        }]
+      };
+
+      const sizeVisualVariable = {
+        type: "size",
+        field: "Capacity",
+        stops: [
+          { value: 20, size: 6 },
+          { value: 40, size: 12 },
+          { value: 60, size: 18 },
+          { value: 80, size: 24 },
+          { value: 100, size: 30 },
+        ]
+      };
+
+      const colorRenderer = new UniqueValueRenderer({
+        field: "Tag",
+        uniqueValueInfos: [
+          { value: "Program", symbol: new SimpleMarkerSymbol({ color: "red", outline: { width: 1, color: "white" } }) },
+          { value: "Event", symbol: new SimpleMarkerSymbol({ color: "lightblue", outline: { width: 1, color: "white" } }) },
+          { value: "Job", symbol: new SimpleMarkerSymbol({ color: "lightgreen", outline: { width: 1, color: "white" } }) },
+          { value: "Resource", symbol: new SimpleMarkerSymbol({ color: "yellow", outline: { width: 1, color: "white" } }) }
+        ],
+        visualVariables: [sizeVisualVariable]
+      });
+
+      const layer = new FeatureLayer({
+        url: "https://services.arcgis.com/ppFhFO7kjyIF441C/arcgis/rest/services/south_west/FeatureServer",
+        outFields: ["Program_Name", "Category_Name", "Org_Name", "Min_Age", "City", "Address", "eventTime", "End_Date", "Tag", "Capacity", "Program_URL", "Geographic_Cluster_Name"],
+        popupTemplate: popupTemplate,
+        renderer: colorRenderer,
+        timeInfo: {
+          startField: "eventTime",
+          endField: null,
+          interval: {
+            unit: "months",
+            value: 1
+          }
+        }
+      });
+
+      const violenceLayer = new FeatureLayer({
+        url: "https://services.arcgis.com/ppFhFO7kjyIF441C/arcgis/rest/services/violence_updated/FeatureServer",
+        outFields: ["*"]
+      });
+
+      const map = new Map({
+        basemap: "streets",
+        layers: [layer]
+      });
+
+      const view = new MapView({
+        map: map,
+        container: "viewDiv",
+        zoom: 10,
+        center: [-87.6298, 41.8781]
+      });
+
+      const timeSlider = new TimeSlider({
+        container: "timeSlider",
+        view: view,
+        timeVisible: true,
+        loop: true,
+        fullTimeExtent: {
+          start: new Date(2020, 8, 1),
+          end: new Date(2024, 0, 1)
+        },
+        stops: {
+          interval: {
+            unit: "months",
+            value: 3
+          }
+        }
+      });
+
+      view.whenLayerView(layer).then(function (layerView) {
+        timeSlider.fullTimeExtent = {
+          start: new Date(2020, 8, 1),
+          end: new Date(2024, 0, 1)
+        };
+
+        timeSlider.watch("timeExtent", function (timeExtent) {
+          console.log("TimeExtent changed:", timeExtent);
+          layerView.filter = {
+            timeExtent: timeExtent
+          };
+        });
+
+        // Create and add a legend to the UI
+        const legend = new Legend({
+          view: view,
+          layerInfos: [{
+            layer: layer,
+            title: "OST Programs"
+          }]
+        });
+        view.ui.add(legend, "top-right");
+
+        // Create and add a search widget to the UI
+        const search = new Search({
+          view: view,
+          sources: [{
+            layer: layer,
+            searchFields: ["Program_Name"],
+            displayField: "Program_Name",
+            exactMatch: false,
+            outFields: ["*"],
+            name: "Program Names",
+            placeholder: "Search for a program"
+          }]
+        });
+        view.ui.add(search, "top-left");
+      });
+
+      // Function to toggle the violence layer
+      document.getElementById("toggleViolence").addEventListener("change", function() {
+        if (this.checked) {
+          map.add(violenceLayer);
+        } else {
+          map.remove(violenceLayer);
+        }
+      });
+
+      // Function to populate the dropdown with community names
+      layer.queryFeatures({
+        where: "1=1",
+        outFields: ["Geographic_Cluster_Name"],
+        returnDistinctValues: true,
+        returnGeometry: false
+      }).then(function(response) {
+        const uniqueCommunities = response.features.map(f => f.attributes.Geographic_Cluster_Name).sort();
+        const select = document.getElementById("clusterFilterSelect");
+        uniqueCommunities.forEach(function(community) {
+          const option = document.createElement("option");
+          option.value = community;
+          option.text = community;
+          select.add(option);
+        });
+      });
+
+      // Function to zoom to selected community
+      document.getElementById("clusterFilterSelect").addEventListener("change", function(event) {
+        const selectedCommunity = event.target.value;
+        layer.queryFeatures({
+          where: `Geographic_Cluster_Name = '${selectedCommunity}'`,
+          outFields: ["*"],
+          returnGeometry: true
+        }).then(function(response) {
+          const features = response.features;
+          if (features.length > 0) {
+            view.goTo(features.map(f => f.geometry));
+          }
+        });
+      });
+    });
+  </script>
+</head>
+<body>
+  <div id="viewDiv"></div>
+  <div id="timeSlider"></div>
+  <div id="layerControl">
+    <input type="checkbox" id="toggleViolence"> Toggle Violence Layer
+  </div>
+  <div id="clusterFilter">
+    <label for="clusterFilterSelect">Filter by Community:</label>
+    <select id="clusterFilterSelect">
+      <option value="">Select a community</option>
+    </select>
+  </div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
